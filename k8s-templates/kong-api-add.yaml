@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kong-api-creator-${JOB_ID}
+  namespace: ${NAMESPACE}
+spec:
+  template:
+    spec:
+      containers:
+      - name: kong-api-creator
+        image: 953030164212.dkr.ecr.us-east-1.amazonaws.com/glt-kongdata:${AUTH_TYPE}
+        resources:
+          limits:
+            cpu: 400m
+            memory: 512Mi
+          requests:
+            cpu: 200m
+            memory: 256Mi
+        env:
+        - name: KONG_HOST
+          value: ${KONG_HOST}
+        - name: API_LIST
+          value: ${API_LIST}
+        - name: INTERNAL_DOMAIN
+          value: ${INTERNAL_DOMAIN}
+      restartPolicy: Never

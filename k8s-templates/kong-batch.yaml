@@ -1,0 +1,14 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kong-api-creator
+spec:
+  template:
+    spec:
+      containers:
+      - name: kong-api-creator
+        image: 953030164212.dkr.ecr.us-east-1.amazonaws.com/kong-api-creator
+        env:
+        - name: KONG_HOST
+          value: kong-admin-service.glt-uat.svc.cluster.local
+      restartPolicy: Never

@@ -1,0 +1,52 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: master-data-provision-${NAMESPACE}-${kubeJobID}
+  namespace: ${NAMESPACE}
+spec:
+  template:
+    spec:
+      containers:
+      - name: master-data-provision
+        image: 953030164212.dkr.ecr.us-east-1.amazonaws.com/glt-master-data-provision:latest
+        resources:
+          limits:
+            cpu: 1
+            memory: 512Mi
+          requests:
+            cpu: 1
+            memory: 512Mi
+        env:
+        - name: CBHOST
+          value: cb-${CB_CLUSTER}.${NAMESPACE}.svc.cluster.local
+        - name: CBUSER
+          value: cb-user
+        - name: CBPASS
+          value: "${CBPASS}"
+        - name: SERVICE
+          value: "${SERVICE_NAME}"
+        - name: MODE
+          value: "${MODE}"
+        - name: ENV_FOLDER
+          value: "glt-master-data-provision/${S3_FOLDER}"
+        - name: PRODUCT_VERSION
+          value: ${PRODUCT_VERSION}
+        - name: AWS_REGION
+          value: "us-east-1"
+        - name: OVERRIDE_BUCKET
+          value: "${OVERRIDE_BUCKET}"
+        - name: BUCKET_NAME
+          value: "${SERVICE_NAME}"
+        - name: MASTERDATA_FILENAME
+          value: "serviceMasterData"
+        - name: AWS_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              key: aws-s3-key-id
+              name: s3-bucket-creds
+        - name: AWS_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              key: aws-s3-secret-key
+              name: s3-bucket-creds
+      restartPolicy: Never

@@ -1,0 +1,151 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: ${NAMESPACE}
+  name: ${SERVICE_NAME}
+  labels:
+    app: ${SERVICE_NAME}
+    tier: backend
+spec:
+  ports:
+  - port: ${PORT}
+  selector:
+    app: ${SERVICE_NAME}
+    tier: backend
+apiVersion: extensions/v1beta1 # for versions before 1.8.0 use apps/v1beta1
+kind: Deployment
+metadata:
+  name: ${SERVICE_NAME}
+  namespace: ${NAMESPACE}
+spec:
+  selector:
+    matchLabels:
+      app: ${SERVICE_NAME}
+      tier: backend
+  replicas: ${REPLICA_COUNT}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        app: ${SERVICE_NAME}
+        tier: backend
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "${PORT}"
+        prometheus.io/path: "/${SERVICE_NAME}/metrics"
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: node-role
+                operator: In
+                values:
+                - ${NAMESPACE}
+    spec:
+      containers:
+      - name: ${SERVICE_NAME}-container
+        image: 953030164212.dkr.ecr.us-east-1.amazonaws.com/glt-${SERVICE_NAME}:${IMAGE_VERSION}
+        resources:
+          limits:
+            cpu: 2
+            memory: 4G
+          requests:
+            cpu: 1
+            memory: 2G
+        env:
+        - name: service_name
+          value: ${SERVICE_NAME}
+        - name: container_name
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: environment
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: namespace
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: host
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: container_id
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: APP_ENV
+          value: env_properties
+        - name: CONF_HOME
+          value: /opt/apps-java/config
+        - name: CONSUL_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: consul-token
+              key: consul-token
+        - name: CLUSTER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: cb-user-pass
+              key: cb-user-pass
+        # - name: CONSUL_URL
+        #   value: "consul-internal-uat.gl-poc.com:443"
+        - name: CONSUL_URL
+          value: "https://consul-internal-uat.gl-poc.com"
+        - name: CONSUL_UI_URL
+          value: "consul-internal-uat.gl-poc.com"
+        - name: CONSUL_PORT
+          value: "443"
+        - name: PREFIX_MAIN
+          value: application-config/git2consul/${NAMESPACE}/${SERVICE_NAME}-service/
+        - name: PREFIX_DB
+          value: application-config/git2consul/${NAMESPACE}/global/aws/${CB_CLUSTER}-cluster/
+        - name: JAEGER_AGENT_HOST
+          value: "jaeger-agent.${NAMESPACE}.svc.cluster.local"
+        - name: JAEGER_AGENT_PORT
+          value: "6831"
+        - name: JAEGER_SAMPLER_PARAM
+          value: "1"
+        - name: JAEGER_SAMPLER_TYPE
+          value: probabilistic
+        - name: JAEGER_SERVICE_NAME
+          value: ${SERVICE_NAME}_${NAMESPACE}
+        ports:
+        - name: svc-port
+          containerPort: ${PORT}
+        volumeMounts:
+        - name: tmpdata
+          mountPath: /tmp
+          readOnly: false
+        livenessProbe:
+        livenessProbe:
+          failureThreshold: 10
+          httpGet:
+            path: /${SERVICE_NAME}/health
+            port: ${PORT}
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 120
+          successThreshold: 1
+          timeoutSeconds: 60
+      volumes:
+      - name: tmpdata
+        hostPath:
+          path: /tmp
+        # readinessProbe:
+        #   failureThreshold: 10
+        #   httpGet:
+        #     path: /${SERVICE_NAME}/ready
+        #     port: ${PORT}
+        #     scheme: HTTP
+        #   periodSeconds: 10
+        #   successThreshold: 1
+        #   timeoutSeconds: 60
