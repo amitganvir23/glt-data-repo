@@ -1,0 +1,71 @@
+task_family: "GRAFANA"
+task_role_arn: ''
+network_mode: "bridge"
+c1_appname: grafana
+c1_cpu: 256
+c1_memory: 512
+c1_soft_memory: 256
+c1_ports:
+  - c1hostPort: 3000
+    c1containerPort: 3000
+    c1protocol: tcp
+c1_image: 953030164212.dkr.ecr.us-east-1.amazonaws.com/grafana-service:latest
+c1_essential: True
+c1_privileged: False
+c1_environment_variables:
+  - c1name : GF_SECURITY_ADMIN_PASSWORD
+    c1value: grafana@glt
+  - c1name : DB_HOST
+    c1value: grafana-mysql.weave.local
+  - c1name : DB_PORT
+    c1value: >
+       "3306"
+  - c1name : DB_NAME
+    c1value: grafana
+  - c1name : DB_USER
+    c1value: root
+  - c1name : DB_PASS
+    c1value: root1
+  - c1name : SMTP_HOST
+    c1value: grafana-smtp.weave.local
+  - c1name : SMTP_PORT
+    c1value: >
+        "2525"
+c1_awslogs_group: "/aws/ecs/dev"
+c1_log_region: us-east-2
+c1_awslogs_stream_prefix: grafana-logs
+c1_docker_labels: monitoring-container
+c1_docker_security_options: no-new-privileges
+
+src_volume_name: "data"
+volume_src_path: "/monitoring-data/grafana_data"
+mount_container_path: "/var/lib/grafana/"
+mount_readonly_bool: False
+
+
+# Data volume container for consul template
+c2_appname: grafana-smtp
+c2_cpu: 100
+c2_memory: 512
+c2_soft_memory: 256
+c2_ports:
+  - c2hostPort: 2525
+    c2containerPort: 25
+    c2protocol: tcp
+c2_environment_variables:
+  - c2name : CONSUL_TOKEN
+    c2value: A6C1B4C3-13A6-48DC-B0DA-7E5F0C97AE87
+c2_image: 953030164212.dkr.ecr.us-east-1.amazonaws.com/grafana-smtp:latest
+c2_essential: True
+c2_privileged: False
+c2_docker_labels: grafana-smtp
+
+
+# Service Setup
+cluster_name: "Monitoring-Cluster-{{env}}"
+service_name: "grafana-service"
+count: "1"
+
+# Stage to Prod it has to be rolling update
+maximumPercent: 200
+minimumHealthyPercent: 50

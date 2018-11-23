@@ -1,0 +1,91 @@
+## TLS stable version and thir Plugins
+jenkins_version: "2.60.1"
+jenkins_plug_url: "https://updates.jenkins-ci.org/stable-2.60/latest"
+##jenkins_plug_url: https://updates.jenkins-ci.org/latest # latest update plugins
+
+jenkins_home: /var/lib/jenkins
+jenkins_url: "http://127.0.0.1"
+jenkins_port: "8080"
+
+jenkins_java_opts: "-Djenkins.install.runSetupWizard=false"
+
+git_name: "JenkinsMaster"
+git_email: "JenkinsMaster@gmail.com"
+
+#jenkins_bucket: "/root/jenkins-config-bucket"
+jenkins_bucket: "/tmp/jenkins-config-bucket"
+jenkins_bucket_url: "ssh://git@github.com/gltin/glt-jenkins-config-devops.git"
+
+jenkins_plugin_bucket_url: "ssh://git@github.com/gltin/glt-infra-packer.git"
+jenkins_plugin_bucket: "/tmp/jenkins-plugin-bucket"
+
+## user name who is owner of jinkins home
+username: "jenkins"
+
+## // plgin name
+jenkins_plugins:
+ - sonar.hpi
+ - emailext-template.hpi
+ - parameterized-trigger.hpi
+ - mailer.hpi
+ - github-branch-source.hpi
+ - matrix-auth.hpi
+ - role-strategy.hpi
+ - email-ext.hpi
+ - job-dsl.hpi
+ - envinject.hpi
+ - ivy.hpi
+ - matrix-project.hpi
+ - envinject-api.hpi
+ - pollscm.hpi
+ - script-security.hpi
+ - subversion.hpi
+ - ssh-slaves.hpi
+ - git-client.hpi
+ - pipeline-build-step.hpi
+ - pipeline-input-step.hpi
+ - pipeline-milestone-step.hpi
+ - pipeline-model-api.hpi
+ - pipeline-stage-tags-metadata.hpi
+ - structs.hpi
+ - workflow-support.hpi
+ - workflow-step-api.hpi
+ - workflow-api.hpi
+ - workflow-cps.hpi
+ - workflow-cps-global-lib.hpi
+ - workflow-basic-steps.hpi
+ - durable-task.hpi
+ - workflow-durable-task-step.hpi
+ - workflow-job.hpi
+ - workflow-scm-step.hpi
+ - pipeline-graph-analysis.hpi
+ - scm-api.hpi
+ - git.hpi
+ - display-url-api.hpi
+ - github.hpi
+ - crossbrowsertesting.hpi
+ - ws-cleanup.hpi
+ - maven-invoker-plugin.hpi
+ - token-macro.hpi
+ - analysis-core.hpi
+ - findbugs.hpi
+ - credentials.hpi
+ - maven-plugin.hpi
+ - sonar.hpi
+ - conditional-buildstep.hpi
+ - cloudbees-folder.hpi
+ - mercurial.hpi
+ - credentials-binding.hpi
+ - pipeline-rest-api.hpi
+ - pipeline-stage-view.hpi
+ - pipeline-model-extensions.hpi
+ - workflow-multibranch.hpi
+ - docker-commons.hpi
+ - docker-workflow.hpi
+ - pipeline-model-declarative-agent.hpi
+ - pipeline-model-definition.hpi
+ - workflow-aggregator.hpi
+ - codesonar.hpi
+ - config-file-provider.hpi
+ - github-api.hpi
+ - gradle.hpi

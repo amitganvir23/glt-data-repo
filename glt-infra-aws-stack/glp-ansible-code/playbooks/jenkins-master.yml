@@ -1,0 +1,8 @@
+---
+- hosts: ECS-Jenkins-Master
+  gather_facts: false
+  remote_user: ec2-user
+  sudo: True
+  roles:
+        - jenkins_master
+        - jenkins_slave

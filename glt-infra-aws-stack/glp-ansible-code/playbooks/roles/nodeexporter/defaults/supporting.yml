@@ -1,0 +1,48 @@
+task_family: "NODEEXPORTER"
+task_role_arn: ''
+network_mode: "host"
+c1_appname: nodeexporter
+c1_cpu: 200
+c1_memory: 512
+c1_soft_memory: 512
+c1_ports:
+  - c1hostPort: 9100
+    c1containerPort: 9100
+    c1protocol: tcp
+c1_image: 953030164212.dkr.ecr.us-east-1.amazonaws.com/node-exporter:{{ build_no | default ('latest')}}
+c1_essential: True
+c1_privileged: False
+
+c1_awslogs_group: "/aws/ecs/{{env}}"
+c1_log_region: us-east-2
+c1_awslogs_stream_prefix: nodeexporter-logs
+c1_docker_labels: nodeexporter-containers
+c1_docker_security_options: no-new-privileges
+
+
+# Volume attachment
+src_volume_name: "procfs"
+volume_src_path: "/proc"
+mount_container_path: "/host/proc"
+mount_readonly_bool: True
+
+src2_volume_name: "rootfsm"
+volume2_src_path: "/"
+mount2_container_path: "/rootfs"
+mount2_readonly_bool: True
+
+src3_volume_name: "sysfs"
+volume3_src_path: "/sys"
+mount3_container_path: "/host/sys"
+mount3_readonly_bool: True
+
+
+
+# Service Setup
+cluster_name: "Monitoring-Cluster-{{env}}"
+service_name: "nodeexporter"
+count: "1"
+
+# Stage to Prod it has to be rolling update
+maximumPercent: 200
+minimumHealthyPercent: 100

@@ -1,0 +1,50 @@
+---
+
+#####################################################################################
+# NOTE:
+#   Domain names
+#     - Applications ( UI and Backend ) register CNAMES with route53 when deployed
+#       and destroyed
+#     - The domain name is passed via terraform
+#     - Domain name is not needed for update operations and hence can be integrated
+#       with CI without that value
+#     - A default value for domain is also set in group_vars/all in case services
+#       are deployed/erased manually
+#####################################################################################
+
+
+#############################################
+# Delete route53 private_zone entries.
+# As these entires are not deleted by terraform it cannot
+# destroy the private zone if these are not deleted
+
+###########Monitoring-Cluster#######
+- include: playbooks/prometheus.yml
+  vars:
+    ecs_action: delete
+    env: "{{env}}"
+    region: "{{region}}"
+
+- include: playbooks/cadvisor.yml
+  vars:
+    ecs_action: delete
+    env: "{{env}}"
+    region: "{{region}}"
+
+- include: playbooks/nodeexporter.yml
+  vars:
+    ecs_action: delete
+    env: "{{env}}"
+    region: "{{region}}"
+
+- include: playbooks/grafana.yml
+  vars:
+    ecs_action: delete
+    env: "{{env}}"
+    region: "{{region}}"
+
+- include: playbooks/grafana-mysql.yml
+  vars:
+    ecs_action: delete
+    env: "{{env}}"
+    region: "{{region}}"
